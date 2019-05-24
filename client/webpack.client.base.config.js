@@ -1,9 +1,9 @@
 /* eslint-env node */
 
-const webpack = require('webpack');
+// const webpack = require('webpack');
 
-const devBuild = process.env.NODE_ENV !== 'production';
-const nodeEnv = devBuild ? 'development' : 'production';
+// const devBuild = process.env.NODE_ENV !== 'production';
+// const nodeEnv = devBuild ? 'development' : 'production';
 
 module.exports = {
   context: __dirname,
@@ -23,26 +23,39 @@ module.exports = {
   resolve: {
     extensions: ['*', '.js'],
   },
-  plugins: [
-    new webpack.IgnorePlugin(/i18n\/all.js/),
+  plugins: [],
+  optimization: {
+    runtimeChunk: 'single',
+    splitChunks: {
+      chunks: 'all',
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendor',
+          chunks: 'all',
+        },
+      },
 
-    new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify(nodeEnv),
-    }),
+      /*
+      maxInitialRequests: Infinity,
+      minSize: 0,
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name(module) {
+            // get the name. E.g. node_modules/packageName/not/this/part.js
+            // or node_modules/packageName
+            const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
 
-    // https://webpack.github.io/docs/list-of-plugins.html#2-explicit-vendor-chunk
-    new webpack.optimize.CommonsChunkPlugin({
-
-      // This name 'vendor' ties into the entry definition
-      name: 'vendor',
-
-      // We don't want the default vendor.js name
-      filename: 'vendor-bundle.js',
-
-      // Passing Infinity just creates the commons chunk, but moves no modules into it.
-      // In other words, we only put what's in the vendor entry definition in vendor-bundle.js
-      minChunks: Infinity,
-    }),
-    new webpack.optimize.UglifyJsPlugin(),
-  ],
+            // npm package names are URL-safe, but some servers don't like @ symbols
+            return `npm.${packageName.replace('@', '')}`;
+          },
+        },
+      },
+      */
+    },
+  },
+  output: {
+    filename: 'vendor-bundle.js',
+  },
 };
