@@ -40,6 +40,20 @@ class HomepageController < ApplicationController
 
       @show_custom_fields = relevant_filters.present? || show_price_filter
       @category_menu_enabled = @show_categories || @show_custom_fields
+
+      if @show_categories
+        @category_display_names = Rails.cache.fetch(["catnames", @current_community, I18n.locale, @main_categories]) do
+                                    cat_names = {}
+                                    @categories.each do |cat|
+                                      cat_names[cat.id] = cat.display_name(I18n.locale)
+                                    end
+                                    cat_names
+                                  end
+        # @category_display_names = {}
+        # @categories.each do |cat|
+        #   @category_display_names[cat.id] = cat.display_name(I18n.locale)
+        # end
+      end
     end
 
     listing_shape_param = params[:transaction_type]
